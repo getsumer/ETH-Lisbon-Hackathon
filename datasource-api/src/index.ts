@@ -1,6 +1,6 @@
 import { strict as strictAssert } from 'assert'
 import express, { Express, Request, Response } from 'express'
-import dotenv from 'dotenv'
+import cors from 'cors'
 import {
   TransactionAggregatesInterval,
   TransactionAggregationQuery,
@@ -22,8 +22,6 @@ import {
   TransactionRepositoryMySql,
   EventRepositoryMongo,
 } from './infrastructure'
-dotenv.config()
-
 
 const main = async () => {
   try {
@@ -66,6 +64,7 @@ const main = async () => {
     const port = process.env.PORT || 3001
 
     app.use(express.json())
+    app.use(cors())
 
     app.get('/healthcheck', (req: Request, res: Response) => {
       res.send('SumerAPI is healthy.')
