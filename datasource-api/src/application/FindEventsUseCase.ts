@@ -1,53 +1,53 @@
 import {
-  Transaction,
-  TransactionRepository,
+  Event,
+  EventRepository,
   DappRepository,
 } from '../domain'
 
-export interface FindTransactionsInput {
+export interface FindEventsInput {
   dappKey: string
-  status: string
+  name: string
   startDate: Date
   endDate: Date
 }
 
-interface FindTransactionsOutput {
-  transactions: Transaction[]
+interface FindEventsOutput {
+  events: Event[]
   count: number
 }
 
-export class FindTransactionsUseCase {
+export class FindEventsUseCase {
   constructor(
     private dappRepository: DappRepository,
-    private transactionRepository: TransactionRepository,
+    private eventRepository: EventRepository,
   ) {}
 
   async execute({
     dappKey,
-    status,
+    name,
     startDate,
     endDate,
-  }: FindTransactionsInput): Promise<FindTransactionsOutput> {
+  }: FindEventsInput): Promise<FindEventsOutput> {
     const dapp = await this.dappRepository.findByKey(dappKey)
     if (!dapp) {
       throw new Error(`Dapp with key ${dappKey} not found.`)
     }
-    const [transactions, count] = await Promise.all([
-      this.transactionRepository.findBy({
+    const [events, count] = await Promise.all([
+      this.eventRepository.findBy({
         dappId: dapp.id,
-        status,
+        name,
         startDate,
         endDate,
       }),
-      this.transactionRepository.countBy({
+      this.eventRepository.countBy({
         dappId: dapp.id,
-        status,
+        name,
         startDate,
         endDate,
       }),
     ])
     return {
-      transactions,
+      events,
       count,
     }
   }

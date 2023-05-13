@@ -30,10 +30,11 @@ export class TransactionRepositoryMySql extends RepositoryMySql implements Trans
     },
   }, { updatedAt: false })
 
-  public async findBy({ status, startDate, endDate }: TransactionFilters): Promise<Transaction[]> {
+  public async findBy({ dappId, status, startDate, endDate }: TransactionFilters): Promise<Transaction[]> {
     if (status === 'NOT_PROCESSED') {
       const errors = await this.ErrorModel.findAll({
         where: {
+          dappId,
           createdAt: { [Op.between]: [startDate, endDate] },
         }
       })
@@ -41,6 +42,7 @@ export class TransactionRepositoryMySql extends RepositoryMySql implements Trans
     }
     const transactions = await this.TransactionModel.findAll({
       where: {
+        dappId,
         status,
         createdAt: { [Op.between]: [startDate, endDate] },
       },
@@ -48,10 +50,11 @@ export class TransactionRepositoryMySql extends RepositoryMySql implements Trans
     return transactions.map((transaction: any) => new Transaction(transaction))
   }
 
-  public async countBy({ status, startDate, endDate }: TransactionFilters): Promise<number> {
+  public async countBy({ dappId, status, startDate, endDate }: TransactionFilters): Promise<number> {
     if (status === 'NOT_PROCESSED') {
       return await this.ErrorModel.count({
         where: {
+          dappId,
           createdAt: { [Op.between]: [startDate, endDate] },
         }
       })
@@ -65,10 +68,10 @@ export class TransactionRepositoryMySql extends RepositoryMySql implements Trans
   }
 
   public async aggregateBy({
+    dappId,
     aggregation,
     startDate,
     endDate,
-    dappId,
   }: TransactionAggregates): Promise<AggregationResult[]> {
     const aggregationResults = await this.TransactionModel.sequelize?.query(`
       SELECT DATE_FORMAT(createdAt, "%Y-%m-%d") period, ${aggregation} value, COUNT(*) count

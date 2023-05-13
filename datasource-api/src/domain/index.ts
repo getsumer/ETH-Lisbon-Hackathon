@@ -1,4 +1,6 @@
 export * from './Dapp'
 export * from './Transaction'
+export * from './Event'
 export * from './DappRepository'
 export * from './TransactionRepository'
+export * from './EventRepository'
