@@ -23,9 +23,16 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const promises = options.targets.map((query) => {
       switch (query.queryType) {
         case QueryType.TimeSeries:
-          return getTransactionsEvolutionMetrics({ dappKey: this._dappKey, fromDate, toDate }).then((response) =>
-            mapTransactionsEvolutionMetrics({ response, query })
-          );
+          if (query.timeSeriesInterval && query.aggregationField) {
+            return getTransactionsEvolutionMetrics({
+              dappKey: this._dappKey,
+              fromDate,
+              toDate,
+              interval: query.timeSeriesInterval,
+              aggregation: query.aggregationField,
+            }).then((response) => mapTransactionsEvolutionMetrics({ response, query }));
+          }
+
         case QueryType.TotalCount:
           if (query.transactionStatus) {
             return getTransactionsTotalMetrics({

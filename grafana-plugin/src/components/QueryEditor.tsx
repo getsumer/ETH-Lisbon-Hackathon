@@ -94,7 +94,7 @@ export function QueryEditor({ query, onChange }: Props) {
               },
               {
                 label: 'Success',
-                value: ProcessedTransactionStatus.Success,
+                value: ProcessedTransactionStatus.Successful,
               },
               {
                 label: 'Pending',
@@ -102,7 +102,7 @@ export function QueryEditor({ query, onChange }: Props) {
               },
               {
                 label: 'Fail',
-                value: ProcessedTransactionStatus.Fail,
+                value: ProcessedTransactionStatus.Failed,
               },
             ]}
             onChange={handleChangeTransactionStatus}

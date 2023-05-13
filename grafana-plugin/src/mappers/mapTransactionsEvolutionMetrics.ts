@@ -20,9 +20,9 @@ export function mapTransactionsEvolutionMetrics({
     ],
   });
   response.forEach((point) => {
-    const successAgg = point.aggregates.find((agg: any) => agg.value === ProcessedTransactionStatus.Success);
+    const successAgg = point.aggregates.find((agg: any) => agg.value === ProcessedTransactionStatus.Successful);
     const pendingAgg = point.aggregates.find((agg: any) => agg.value === ProcessedTransactionStatus.Pending);
-    const failureAgg = point.aggregates.find((agg: any) => agg.value === ProcessedTransactionStatus.Fail);
+    const failureAgg = point.aggregates.find((agg: any) => agg.value === ProcessedTransactionStatus.Failed);
     frame.appendRow([point.period, successAgg?.count, pendingAgg?.count, failureAgg?.count]);
   });
 
