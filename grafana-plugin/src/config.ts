@@ -1,1 +1,1 @@
-export const API_SERVER = 'http://54.171.6.132:3001';
+export const API_SERVER = 'http://hackathon.getsumer.com:3001';
