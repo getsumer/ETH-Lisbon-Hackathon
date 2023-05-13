@@ -88,8 +88,8 @@ const main = async () => {
         const { transactions, count } = await findTransactionsController.run({
           dappKey: dappKey.toString(),
           status: status.toString(),
-          startDate: new Date(startDate.toString()),
-          endDate: new Date(endDate.toString()),
+          startDate: new Date(parseInt(`${startDate}`)),
+          endDate: new Date(parseInt(`${endDate}`)),
         })
         res.status(200).send({ transactions, count })
       } catch (err: any) {
@@ -114,8 +114,8 @@ const main = async () => {
           dappKey: dappKey.toString(),
           interval: interval.toString() as TransactionAggregatesInterval,
           aggregation: aggregation.toString() as TransactionAggregationQuery,
-          startDate: new Date(startDate.toString()),
-          endDate: new Date(endDate.toString()),
+          startDate: new Date(parseInt(`${startDate}`)),
+          endDate: new Date(parseInt(`${endDate}`)),
         })
         res.status(200).send(aggregationResult)
       } catch (err: any) {
@@ -141,8 +141,8 @@ const main = async () => {
         const { events, count } = await findEventsController.run({
           dappKey: dappKey.toString(),
           name: name.toString(),
-          startDate: new Date(startDate.toString()),
-          endDate: new Date(endDate.toString()),
+          startDate: new Date(parseInt(`${startDate}`)),
+          endDate: new Date(parseInt(`${endDate}`)),
         })
         res.status(200).send({
           events: events.map(e => ({
