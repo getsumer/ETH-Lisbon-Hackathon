@@ -131,27 +131,18 @@ const main = async () => {
       const { name, startDate, endDate } = req.query
       try {
         strictAssert(dappKey, 'Mandatory header "authorization".')
-        strictAssert(name, 'Mandatory query param "name".')
         strictAssert(startDate, 'Mandatory query param "startDate".')
         strictAssert(endDate, 'Mandatory query param "endDate".')
       } catch (err: any) {
         return res.status(400).send(err.message)
       }
       try {
-        const { events, count } = await findEventsController.run({
+        const events = await findEventsController.run({
           dappKey: dappKey.toString(),
-          name: name.toString(),
           startDate: new Date(parseInt(`${startDate}`)),
           endDate: new Date(parseInt(`${endDate}`)),
         })
-        res.status(200).send({
-          events: events.map(e => ({
-            dappId: e.dappId,
-            name: e.name,
-            fromAddress: e.fromAddress,
-          })),
-          count,
-        })
+        res.status(200).send(events)
       } catch (err: any) {
         res.status(500).send(err.message)
       }

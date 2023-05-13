@@ -6,13 +6,12 @@ import {
 
 export interface FindEventsInput {
   dappKey: string
-  name: string
   startDate: Date
   endDate: Date
 }
 
 interface FindEventsOutput {
-  events: Event[]
+  name: string
   count: number
 }
 
@@ -24,31 +23,13 @@ export class FindEventsUseCase {
 
   async execute({
     dappKey,
-    name,
     startDate,
     endDate,
-  }: FindEventsInput): Promise<FindEventsOutput> {
+  }: FindEventsInput): Promise<FindEventsOutput[]> {
     const dapp = await this.dappRepository.findByKey(dappKey)
     if (!dapp) {
       throw new Error(`Dapp with key ${dappKey} not found.`)
     }
-    const [events, count] = await Promise.all([
-      this.eventRepository.findBy({
-        dappId: dapp.id,
-        name,
-        startDate,
-        endDate,
-      }),
-      this.eventRepository.countBy({
-        dappId: dapp.id,
-        name,
-        startDate,
-        endDate,
-      }),
-    ])
-    return {
-      events,
-      count,
-    }
+    return await this.eventRepository.getNameCount({dappId: dapp.id, startDate, endDate})
   }
 }
