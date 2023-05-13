@@ -1,6 +1,33 @@
 import { Transaction } from './Transaction'
 
+export type TransactionAggregatesInterval = 'DAILY'
+
+export type TransactionAggregationQuery = 'status'
+
+export interface TransactionFilters {
+  dappId: string
+  status: string
+  startDate: Date
+  endDate: Date
+}
+
+export interface TransactionAggregates extends Omit<TransactionFilters, 'status'> {
+  interval: TransactionAggregatesInterval
+  aggregation: TransactionAggregationQuery
+}
+
+export interface Aggregate {
+  value: string
+  count: number
+}
+
+export interface AggregationResult {
+  period: string
+  aggregates: Aggregate[]
+}
+
 export interface TransactionRepository {
-  findByStatus(status: string): Promise<Transaction[]>
-  countByStatus(status: string): Promise<number>
+  findBy(filters: TransactionFilters): Promise<Transaction[]>
+  countBy(filters: TransactionFilters): Promise<number>
+  aggregateBy(aggregates: TransactionAggregates): Promise<AggregationResult[]>
 }

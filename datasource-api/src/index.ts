@@ -1,19 +1,30 @@
 import { strict as strictAssert } from 'assert'
 import express, { Express, Request, Response } from 'express'
-import { createConnection } from 'mysql2/promise'
 import dotenv from 'dotenv'
-import { FindTransactionUseCase } from './application'
-import { GetTransactionsController } from './adapters'
-import { TransactionRepositoryMySql } from './infrastructure'
+import {
+  TransactionAggregatesInterval,
+  TransactionAggregationQuery,
+} from './domain'
+import { FindTransactionUseCase, AggregateTransactionsUseCase } from './application'
+import { FindTransactionsController, AggregateTransactionsController } from './adapters'
+import { DappRepositoryMySql, TransactionRepositoryMySql } from './infrastructure'
 dotenv.config()
 
 
 const main = async () => {
   try {
-    const connection = await createConnection('mysql://root:123123@localhost/example')
-    const transactionRepository = new TransactionRepositoryMySql(connection)
-    const findTransactionUseCase = new FindTransactionUseCase(transactionRepository)
-    const getTransactionsController = new GetTransactionsController(findTransactionUseCase)
+    const transactionRepository = new TransactionRepositoryMySql()
+    const dappRepository = new DappRepositoryMySql()
+    const findTransactionUseCase = new FindTransactionUseCase(
+      dappRepository,
+      transactionRepository,
+    )
+    const aggregateTransactionsUseCase = new AggregateTransactionsUseCase(
+      dappRepository,
+      transactionRepository,
+    )
+    const findTransactionsController = new FindTransactionsController(findTransactionUseCase)
+    const aggregateTransactionsController = new AggregateTransactionsController(aggregateTransactionsUseCase)
 
     const app: Express = express()
     const port = process.env.PORT || 3001
@@ -22,14 +33,54 @@ const main = async () => {
       res.send('SumerAPI is healthy.')
     })
 
-    app.get('/transactions', async (req: Request, res: Response) => {
+    app.get('/dapps/:dappKey/transactions', async (req: Request, res: Response) => {
+      const { dappKey } = req.params
+      const { status, startDate, endDate } = req.query
       try {
-        strictAssert(req.query.status, 'Mandatory query param "status".')
-      } catch (err) {
-        return res.status(400).send(err)
+        strictAssert(dappKey, 'Mandatory query param "dappKey".')
+        strictAssert(status, 'Mandatory query param "status".')
+        strictAssert(startDate, 'Mandatory query param "startDate".')
+        strictAssert(endDate, 'Mandatory query param "endDate".')
+      } catch (err: any) {
+        return res.status(400).send(err.message)
       }
-      const { transactions, count } = await getTransactionsController.run(req.query.status.toString())
-      res.status(200).send({ transactions, count })
+      try {
+        const { transactions, count } = await findTransactionsController.run({
+          dappKey: dappKey.toString(),
+          status: status.toString(),
+          startDate: new Date(startDate.toString()),
+          endDate: new Date(endDate.toString()),
+        })
+        res.status(200).send({ transactions, count })
+      } catch (err: any) {
+        res.status(500).send(err.message)
+      }
+    })
+
+    app.get('/dapps/:dappKey/transactions/metrics', async (req: Request, res: Response) => {
+      const { dappKey } = req.params
+      const { interval, aggregation, startDate, endDate } = req.query
+      try {
+        strictAssert(dappKey, 'Mandatory query param "dappKey".')
+        strictAssert(interval, 'Mandatory query param "interval".')
+        strictAssert(aggregation, 'Mandatory query param "aggregation".')
+        strictAssert(startDate, 'Mandatory query param "startDate".')
+        strictAssert(endDate, 'Mandatory query param "endDate".')
+      } catch (err: any) {
+        return res.status(400).send(err.message)
+      }
+      try {
+        const aggregationResult = await aggregateTransactionsController.run({
+          dappKey: dappKey.toString(),
+          interval: interval.toString() as TransactionAggregatesInterval,
+          aggregation: aggregation.toString() as TransactionAggregationQuery,
+          startDate: new Date(startDate.toString()),
+          endDate: new Date(endDate.toString()),
+        })
+        res.status(200).send(aggregationResult)
+      } catch (err: any) {
+        res.status(500).send(err.message)
+      }
     })
 
     app.listen(port, () => {

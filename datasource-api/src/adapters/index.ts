@@ -1,1 +1,2 @@
-export * from './GetTransactionsController'
+export * from './FindTransactionsController'
+export * from './AggregateTransactionsController'
