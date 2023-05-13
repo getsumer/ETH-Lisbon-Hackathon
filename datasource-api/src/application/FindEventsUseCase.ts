@@ -30,7 +30,6 @@ export class FindEventsUseCase {
     if (!dapp) {
       throw new Error(`Dapp with key ${dappKey} not found.`)
     }
-    const events = await this.eventRepository.getNameCount({dappId: dapp.id, startDate, endDate})
-    return events.map((event: any) => ({ name: event._id, count: event.count }))
+    return await this.eventRepository.getNameCount({dappId: dapp.id, startDate, endDate})
   }
 }

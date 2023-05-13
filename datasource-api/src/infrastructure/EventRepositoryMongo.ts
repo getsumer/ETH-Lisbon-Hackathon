@@ -43,21 +43,19 @@ export class EventRepositoryMongo extends RepositoryMongo implements EventReposi
       createdAt: new Date(),
     })
   }
-  public async getNameCount(filters: EventFilters): Promise<{ name: string; count: number }[]> {
-    return await this.EventCollection.aggregate([
-      {
-        $group: {
-          _id: '$name',
-          count: { $sum: 1 },
-        },
-        $where: {
-          dappId: filters.dappId,
-          createdAt: {
-            $gte: filters.startDate,
-            $lt: filters.endDate,
-          },
-        },
-      },
+  public async getNameCount({
+    dappId,
+    endDate,
+    startDate,
+  }: EventFilters): Promise<{ name: string; count: number }[]> {
+    const events: any[] = await this.EventCollection.aggregate([
+      { $unwind: "$name" },
+      { $group: { "_id": "$name", "count": { $sum: 1 } } },
+      { $project: { "name": "$_id", "count": 1 } },
     ]).toArray()
+    return events.map(event => ({
+      name: event.name,
+      count: event.count,
+    }))
   }
 }
