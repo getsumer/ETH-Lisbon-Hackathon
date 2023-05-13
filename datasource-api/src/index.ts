@@ -5,17 +5,39 @@ import {
   TransactionAggregatesInterval,
   TransactionAggregationQuery,
 } from './domain'
-import { FindTransactionUseCase, AggregateTransactionsUseCase } from './application'
-import { FindTransactionsController, AggregateTransactionsController } from './adapters'
-import { DappRepositoryMySql, TransactionRepositoryMySql } from './infrastructure'
+import {
+  FindTransactionsUseCase,
+  AggregateTransactionsUseCase,
+  FindEventsUseCase,
+  CreateEventUseCase,
+} from './application'
+import {
+  FindTransactionsController,
+  AggregateTransactionsController,
+  FindEventsController,
+  CreateEventController,
+} from './adapters'
+import {
+  DappRepositoryMySql,
+  TransactionRepositoryMySql,
+  EventRepositoryMongo,
+} from './infrastructure'
 dotenv.config()
 
 
 const main = async () => {
   try {
+    /**
+     * Repositories init
+     */
     const transactionRepository = new TransactionRepositoryMySql()
     const dappRepository = new DappRepositoryMySql()
-    const findTransactionUseCase = new FindTransactionUseCase(
+    const eventRepository = new EventRepositoryMongo()
+
+    /**
+     * Use Cases init
+     */
+    const findTransactionsUseCase = new FindTransactionsUseCase(
       dappRepository,
       transactionRepository,
     )
@@ -23,21 +45,40 @@ const main = async () => {
       dappRepository,
       transactionRepository,
     )
-    const findTransactionsController = new FindTransactionsController(findTransactionUseCase)
+    const findEventsUseCase = new FindEventsUseCase(
+      dappRepository,
+      eventRepository,
+    )
+    const createEventUseCase = new CreateEventUseCase(
+      dappRepository,
+      eventRepository,
+    )
+
+    /**
+     * Controllers init
+     */
+    const findTransactionsController = new FindTransactionsController(findTransactionsUseCase)
     const aggregateTransactionsController = new AggregateTransactionsController(aggregateTransactionsUseCase)
+    const findEventsController = new FindEventsController(findEventsUseCase)
+    const createEventController = new CreateEventController(createEventUseCase)
 
     const app: Express = express()
     const port = process.env.PORT || 3001
+
+    app.use(express.json())
 
     app.get('/healthcheck', (req: Request, res: Response) => {
       res.send('SumerAPI is healthy.')
     })
 
-    app.get('/dapps/:dappKey/transactions', async (req: Request, res: Response) => {
-      const { dappKey } = req.params
+    /**
+     * Transaction endpoints
+     */
+    app.get('/transactions', async (req: Request, res: Response) => {
+      const { authorization: dappKey } = req.headers
       const { status, startDate, endDate } = req.query
       try {
-        strictAssert(dappKey, 'Mandatory query param "dappKey".')
+        strictAssert(dappKey, 'Mandatory header "authorization".')
         strictAssert(status, 'Mandatory query param "status".')
         strictAssert(startDate, 'Mandatory query param "startDate".')
         strictAssert(endDate, 'Mandatory query param "endDate".')
@@ -57,11 +98,11 @@ const main = async () => {
       }
     })
 
-    app.get('/dapps/:dappKey/transactions/metrics', async (req: Request, res: Response) => {
-      const { dappKey } = req.params
+    app.get('/transactions/metrics', async (req: Request, res: Response) => {
+      const { authorization: dappKey } = req.headers
       const { interval, aggregation, startDate, endDate } = req.query
       try {
-        strictAssert(dappKey, 'Mandatory query param "dappKey".')
+        strictAssert(dappKey, 'Mandatory header "authorization".')
         strictAssert(interval, 'Mandatory query param "interval".')
         strictAssert(aggregation, 'Mandatory query param "aggregation".')
         strictAssert(startDate, 'Mandatory query param "startDate".')
@@ -78,6 +119,62 @@ const main = async () => {
           endDate: new Date(endDate.toString()),
         })
         res.status(200).send(aggregationResult)
+      } catch (err: any) {
+        res.status(500).send(err.message)
+      }
+    })
+
+    /**
+     * Event endpoints
+     */
+    app.get('/events', async (req: Request, res: Response) => {
+      const { authorization: dappKey } = req.headers
+      const { name, startDate, endDate } = req.query
+      try {
+        strictAssert(dappKey, 'Mandatory header "authorization".')
+        strictAssert(name, 'Mandatory query param "name".')
+        strictAssert(startDate, 'Mandatory query param "startDate".')
+        strictAssert(endDate, 'Mandatory query param "endDate".')
+      } catch (err: any) {
+        return res.status(400).send(err.message)
+      }
+      try {
+        const { events, count } = await findEventsController.run({
+          dappKey: dappKey.toString(),
+          name: name.toString(),
+          startDate: new Date(startDate.toString()),
+          endDate: new Date(endDate.toString()),
+        })
+        res.status(200).send({
+          events: events.map(e => ({
+            dappId: e.dappId,
+            name: e.name,
+            fromAddress: e.fromAddress,
+          })),
+          count,
+        })
+      } catch (err: any) {
+        res.status(500).send(err.message)
+      }
+    })
+
+    app.post('/events', async (req: Request, res: Response) => {
+      const { authorization: dappKey } = req.headers
+      const { name, fromAddress } = req.body
+      try {
+        strictAssert(dappKey, 'Mandatory header "authorization".')
+        strictAssert(name, 'Mandatory query param "name".')
+        strictAssert(fromAddress, 'Mandatory query param "fromAddress".')
+      } catch (err: any) {
+        return res.status(400).send(err.message)
+      }
+      try {
+        await createEventController.run({
+          dappKey: dappKey.toString(),
+          name: name.toString(),
+          fromAddress: fromAddress.toString(),
+        })
+        res.status(201).send()
       } catch (err: any) {
         res.status(500).send(err.message)
       }

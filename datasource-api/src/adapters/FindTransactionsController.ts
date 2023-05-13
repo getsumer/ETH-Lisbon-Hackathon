@@ -1,9 +1,9 @@
-import { FindTransactionUseCase, FindTransactionInput } from '../application'
+import { FindTransactionsUseCase, FindTransactionsInput } from '../application'
 
 export class FindTransactionsController {
-  constructor(private findTransactionUseCase: FindTransactionUseCase) {}
-  async run({ dappKey, status, startDate, endDate }: FindTransactionInput) {
-    return await this.findTransactionUseCase.execute({
+  constructor(private findTransactionsUseCase: FindTransactionsUseCase) {}
+  async run({ dappKey, status, startDate, endDate }: FindTransactionsInput) {
+    return await this.findTransactionsUseCase.execute({
       dappKey,
       status,
       startDate,
