@@ -58,9 +58,9 @@ export function QueryEditor({ query, onChange }: Props) {
           <Select
             options={[
               {
-                label: 'Interval',
+                label: 'Daily',
                 value: TimeSeriesInterval.Daily,
-                description: 'Display values aggregated by date',
+                description: 'Aggregate data by date',
               },
             ]}
             onChange={handleChangeTimeSeriesInterval}

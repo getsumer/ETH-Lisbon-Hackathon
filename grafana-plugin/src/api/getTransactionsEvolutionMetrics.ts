@@ -1,3 +1,5 @@
+//import { makeGetRequest } from 'services/apiClient';
+
 export type TransactionsEvolutionMetric = {
   period: string;
   aggregates: Array<{ value: string; count: number }>;
@@ -12,8 +14,11 @@ export async function getTransactionsEvolutionMetrics({
   fromDate: string;
   toDate: string;
 }): Promise<TransactionsEvolutionMetric[]> {
-  // const result = await getBackendSrv().get('https://api.example.com/metrics', query);
-  console.log(dappKey, fromDate, toDate);
+  // const result = await makeGetRequest({
+  //   url: 'transactions/metrics',
+  //   params: { startDate: fromDate, endDate: toDate },
+  //   dappKey,
+  // });
   const result = {
     interval: 'DAILY',
     field: 'status',

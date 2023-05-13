@@ -12,9 +12,9 @@ export enum TimeSeriesInterval {
 }
 
 export enum ProcessedTransactionStatus {
-  Success = 'success',
-  Fail = 'fail',
-  Pending = 'pending',
+  Success = 'SUCCESS',
+  Fail = 'FAIL',
+  Pending = 'PENDING',
 }
 
 export enum TransactionStatus {

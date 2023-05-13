@@ -7,7 +7,6 @@ import { getTransactionsEvolutionMetrics } from 'api/getTransactionsEvolutionMet
 import { mapTransactionsEvolutionMetrics } from 'mappers/mapTransactionsEvolutionMetrics';
 import { getTransactionsTotalMetrics } from 'api/getTransactionsTotalMetrics';
 import { mapTransactionsTotalMetrics } from 'mappers/mapTransactionsTotalMetrics';
-import { fToApiDate } from 'utils/formatTime';
 
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   _dappKey = '';
@@ -18,10 +17,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
     const { range } = options;
-    const fromDateMs = range!.from.valueOf();
-    const toDateMs = range!.to.valueOf();
-    const fromDate = fToApiDate(fromDateMs);
-    const toDate = fToApiDate(toDateMs);
+    const fromDate = range!.from.valueOf().toString();
+    const toDate = range!.to.valueOf().toString();
 
     const promises = options.targets.map((query) => {
       switch (query.queryType) {

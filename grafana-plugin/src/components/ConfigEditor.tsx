@@ -10,7 +10,7 @@ export function ConfigEditor(props: Props) {
   const onDappKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
     const jsonData = {
       ...options.jsonData,
-      path: event.target.value,
+      dappKey: event.target.value,
     };
     onOptionsChange({ ...options, jsonData });
   };
@@ -20,12 +20,7 @@ export function ConfigEditor(props: Props) {
   return (
     <div className="gf-form-group">
       <InlineField label="Dapp Key" labelWidth={12}>
-        <Input
-          onChange={onDappKeyChange}
-          value={jsonData.dappKey || ''}
-          placeholder="json field returned to frontend"
-          width={40}
-        />
+        <Input onChange={onDappKeyChange} value={jsonData.dappKey || ''} placeholder="Your Sumer Dapp Key" width={40} />
       </InlineField>
     </div>
   );

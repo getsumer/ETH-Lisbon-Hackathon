@@ -1,3 +1,4 @@
+import { makeGetRequest } from 'services/apiClient';
 import { AllTransactionStatus } from 'types';
 
 export type TransactionsTotalMetric = {
@@ -15,10 +16,11 @@ export async function getTransactionsTotalMetrics({
   fromDate: string;
   toDate: string;
 }): Promise<TransactionsTotalMetric> {
-  console.log(dappKey, status, fromDate, toDate);
-  // const result = await getBackendSrv().get('https://api.example.com/metrics', query);
-  const result = {
-    count: 50,
-  };
+  const result = await makeGetRequest({
+    url: 'transactions',
+    params: { startDate: fromDate, endDate: toDate, status },
+    dappKey,
+  });
+
   return result;
 }
