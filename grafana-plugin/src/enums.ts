@@ -1,6 +1,7 @@
 export enum QueryType {
   TotalCount = 'TOTAL_COUNT',
   TimeSeries = 'TIME_SERIES',
+  Events = 'EVENTS',
 }
 
 export enum AggregationField {

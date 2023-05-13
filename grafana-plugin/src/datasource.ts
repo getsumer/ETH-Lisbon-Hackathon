@@ -8,6 +8,9 @@ import { mapTransactionsEvolutionMetrics } from 'mappers/mapTransactionsEvolutio
 import { getTransactionsTotalMetrics } from 'api/getTransactionsTotalMetrics';
 import { mapTransactionsTotalMetrics } from 'mappers/mapTransactionsTotalMetrics';
 
+import { mapEventsMetrics } from 'mappers/mapEventsMetrics';
+import { getEventsMetrics } from 'api/getEventsMetrics';
+
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   _dappKey = '';
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
@@ -42,6 +45,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
               toDate,
             }).then((response) => mapTransactionsTotalMetrics({ response, query }));
           }
+        case QueryType.Events:
+          return getEventsMetrics({
+            dappKey: this._dappKey,
+            fromDate,
+            toDate,
+          }).then((response) => mapEventsMetrics({ response, query }));
         default:
           return;
       }
