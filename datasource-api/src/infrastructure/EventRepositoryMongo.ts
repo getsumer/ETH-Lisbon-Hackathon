@@ -8,7 +8,7 @@ import { RepositoryMongo } from './RepositoryMongo'
 export class EventRepositoryMongo extends RepositoryMongo implements EventRepository {
   private readonly EventCollection = this.db.collection('events')
 
-  public async findBy({ dappId, name, startDate, endDate }: EventFilters): Promise<Event[]> {
+  public async findBy({ dappId, startDate, endDate }: EventFilters): Promise<Event[]> {
     const events = await this.EventCollection.find({
       dappId,
       name,
@@ -22,7 +22,6 @@ export class EventRepositoryMongo extends RepositoryMongo implements EventReposi
 
   public async countBy({
     dappId,
-    name,
     startDate,
     endDate,
   }: EventFilters): Promise<number> {
@@ -43,5 +42,22 @@ export class EventRepositoryMongo extends RepositoryMongo implements EventReposi
       fromAddress: event.fromAddress,
       createdAt: new Date(),
     })
+  }
+  public async getNameCount(filters: EventFilters): Promise<{ name: string; count: number }[]> {
+    return await this.EventCollection.aggregate([
+      {
+        $group: {
+          _id: '$name',
+          count: { $sum: 1 },
+        },
+        $where: {
+          dappId: filters.dappId,
+          createdAt: {
+            $gte: filters.startDate,
+            $lt: filters.endDate,
+          },
+        },
+      },
+    ]).toArray()
   }
 }
