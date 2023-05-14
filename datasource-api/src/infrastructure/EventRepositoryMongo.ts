@@ -46,34 +46,23 @@ export class EventRepositoryMongo extends RepositoryMongo implements EventReposi
     endDate,
     startDate,
   }: EventFilters): Promise<{ name: string; count: number }[]> {
-    const events: any[] = await this.EventCollection.aggregate([
-      {
-        $match: {
-          dappId,
-          createdAt: {
-            $gte: startDate,
-            $lt: endDate,
-          },
-        }
+    const result = await this.EventCollection.find({
+      dappId,
+      createdAt: {
+        $gte: startDate,
+        $lt: endDate,
       },
-      { $unwind: "$name" },
-      {
-        $group: {
-          _id: "$name",
-          count: { $sum: 1 },
-        }
-      },
-      {
-        $project: {
-          name: "$_id",
-          createdAt: 1,
-        }
-      },
-      { $sort: { _id: 1 } },
-    ]).toArray()
-    return events.map(event => ({
-      name: event.name,
-      count: event.count,
+    }).sort({ createdAt: 1 }).toArray()
+    const events: any[] = []
+    result.forEach(r => {
+      if (!events[r.name]) {
+        events[r.name] = 0
+      }
+      events[r.name]++
+    })
+    return Object.keys(events).map((key: any) => ({
+      name: key,
+      count: events[key],
     }))
   }
 }
