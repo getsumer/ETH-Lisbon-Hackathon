@@ -86,7 +86,7 @@ export const SupplyAssetsListItem = ({
           variant="contained"
           onClick={() => {
             // sendInfo(`Supply ${underlyingAsset}`);
-            sendInfo(`Supply `);
+            sendInfo(`Request Supply`);
             openSupply(underlyingAsset);
           }}
         >
