@@ -10,7 +10,7 @@ export class SignObserver implements Observer {
     const args: any[] = target.execution.args ?? [];
     if (args?.filter(Boolean).some((arg) => arg['method'] === this.rpc_method)) {
       //   sendInfo(`signTypedData_v4 ${args[0].params[0]}`);
-      sendInfo(`signTypedData_v4 `);
+      sendInfo(`Sign Approve`);
     }
   }
 }

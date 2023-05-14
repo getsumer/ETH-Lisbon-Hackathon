@@ -1,7 +1,6 @@
 import { InterestRate } from '@aave/contract-helpers';
 import { createContext, useContext, useState } from 'react';
 import { EmodeModalType } from 'src/components/transactions/Emode/EmodeModalContent';
-import { sendInfo } from 'src/helpers/sendInfo';
 import { useWeb3Context } from 'src/libs/hooks/useWeb3Context';
 import { TxErrorType } from 'src/ui-config/errorMapping';
 
@@ -168,7 +167,6 @@ export const ModalContextProvider: React.FC = ({ children }) => {
         },
         close: () => {
           // sendInfo(`Close ${args.underlyingAsset}`)
-          sendInfo(`Close `);
           setType(undefined);
           setArgs({});
           setMainTxState({});

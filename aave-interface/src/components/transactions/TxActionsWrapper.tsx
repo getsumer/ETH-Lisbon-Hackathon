@@ -139,7 +139,7 @@ export const TxActionsWrapper = ({
           onClick={() => {
             try {
               //sendInfo(`Approve ${symbol} to continue`)
-              sendInfo(`Approve ${symbol}`);
+              sendInfo(`Approve Deposit`);
               approvalParams.handleClick && approvalParams.handleClick();
             } catch (error) {
               console.error(error);
@@ -160,7 +160,7 @@ export const TxActionsWrapper = ({
         variant="contained"
         disabled={disabled || blocked || readOnlyModeAddress !== undefined}
         onClick={() => {
-          sendInfo(`Approve ${symbol} to continue`);
+          sendInfo(`Approve Supply`);
           handleClick && handleClick();
         }}
         size="large"
