@@ -11,7 +11,6 @@ export class EventRepositoryMongo extends RepositoryMongo implements EventReposi
   public async findBy({ dappId, startDate, endDate }: EventFilters): Promise<Event[]> {
     const events = await this.EventCollection.find({
       dappId,
-      name,
       createdAt: {
         $gte: startDate,
         $lt: endDate,
@@ -27,7 +26,6 @@ export class EventRepositoryMongo extends RepositoryMongo implements EventReposi
   }: EventFilters): Promise<number> {
     return await this.EventCollection.countDocuments({
       dappId,
-      name,
       createdAt: {
         $gte: startDate,
         $lt: endDate,
@@ -49,9 +47,29 @@ export class EventRepositoryMongo extends RepositoryMongo implements EventReposi
     startDate,
   }: EventFilters): Promise<{ name: string; count: number }[]> {
     const events: any[] = await this.EventCollection.aggregate([
+      {
+        $match: {
+          dappId,
+          createdAt: {
+            $gte: startDate,
+            $lt: endDate,
+          },
+        }
+      },
       { $unwind: "$name" },
-      { $group: { "_id": "$name", "count": { $sum: 1 } } },
-      { $project: { "name": "$_id", "count": 1 } },
+      {
+        $group: {
+          _id: "$name",
+          count: { $sum: 1 },
+        }
+      },
+      {
+        $project: {
+          name: "$_id",
+          createdAt: 1,
+        }
+      },
+      { $sort: { _id: 1 } },
     ]).toArray()
     return events.map(event => ({
       name: event.name,
