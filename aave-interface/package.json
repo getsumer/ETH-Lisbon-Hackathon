@@ -85,7 +85,7 @@
     "reflect-metadata": "^0.1.13",
     "remark-gfm": "^3.0.1",
     "serve": "^14.2.0",
-    "sumer-sdk": "^5.0.2",
+    "sumer-sdk": "^5.0.3",
     "tiny-invariant": "^1.3.1",
     "web3-ledgerhq-frame-connector": "^1.0.1",
     "zustand": "^4.1.2"
