@@ -28,6 +28,7 @@ import { AppDataProvider } from 'src/hooks/app-data-provider/useAppDataProvider'
 import { ModalContextProvider } from 'src/hooks/useModal';
 import { PermissionProvider } from 'src/hooks/usePermissions';
 import { Web3ContextProvider } from 'src/libs/web3-data-provider/Web3Provider';
+import { MixpanelTransactionObserver } from 'src/MixpanelTransactionObserver';
 import { SignObserver } from 'src/SignObserver';
 import { SharedDependenciesProvider } from 'src/ui-config/SharedDependenciesProvider';
 import { Sumer } from 'sumer-sdk';
@@ -39,7 +40,7 @@ import { LanguageProvider } from '../src/libs/LanguageProvider';
 Sumer.init({
   dappKey: '8c1b18a8-17df-4d6b-871d-ce1f7bac9da7',
   dns: 'https://demo.api.getsumer.com',
-  observers: [new SignObserver()],
+  observers: [new SignObserver(), new MixpanelTransactionObserver()],
 });
 
 // Client-side cache, shared for the whole session of the user in the browser.
