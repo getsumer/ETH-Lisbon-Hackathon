@@ -9,22 +9,23 @@ export class MixpanelTransactionObserver implements Observer {
 
   public async inspect({ execution }: Target): Promise<void> {
     const { result } = execution;
-    if (this.isTransaction(execution.result) && result) {
-      const fromAddress = this.getAddress(execution);
-      mixpanel.identify(fromAddress);
-      console.log('[MixpanelTransactionObserver] execution', execution);
-      mixpanel.track('Transaction', {
-        chainId:
-          this.parseNumber(result['chainId' as keyof ExecutionPayload]) ||
-          this.getChainId(execution),
-        hash:
-          result['hash' as keyof ExecutionPayload] ||
-          result['transactionHash' as keyof ExecutionPayload] ||
-          result,
-        from: fromAddress,
-        gasLimit: this.parseBigNumber(result['gasLimit' as keyof ExecutionPayload]),
-      });
-    }
+    // @ts-ignore
+    if (this.isTransaction(execution.result) && result && result['blockHash']) {
+        const fromAddress = this.getAddress(execution);
+        mixpanel.identify(fromAddress);
+        console.log('[MixpanelTransactionObserver] execution', execution);
+        mixpanel.track('Transaction', {
+          chainId:
+            this.parseNumber(result['chainId' as keyof ExecutionPayload]) ||
+            this.getChainId(execution),
+          hash:
+            result['hash' as keyof ExecutionPayload] ||
+            result['transactionHash' as keyof ExecutionPayload] ||
+            result,
+          from: fromAddress,
+          gasLimit: this.parseBigNumber(result['gasLimit' as keyof ExecutionPayload]),
+        });
+      }
   }
 
   private isTransaction(result?: ExecutionPayload): boolean {
