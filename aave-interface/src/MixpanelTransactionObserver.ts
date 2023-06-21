@@ -1,5 +1,6 @@
 import mixpanel from 'mixpanel-browser';
 import { Observer, Target } from 'sumer-sdk';
+import { Transaction } from 'sumer-sdk/build/types/models';
 import { ExecutionPayload, TargetExecution } from 'sumer-sdk/build/types/observers';
 
 export class MixpanelTransactionObserver implements Observer {
@@ -14,16 +15,10 @@ export class MixpanelTransactionObserver implements Observer {
         const fromAddress = this.getAddress(execution);
         mixpanel.identify(fromAddress);
         console.log('[MixpanelTransactionObserver] execution', execution);
+
+        const transaction = result as Transaction;
         mixpanel.track('Transaction', {
-          chainId:
-            this.parseNumber(result['chainId' as keyof ExecutionPayload]) ||
-            this.getChainId(execution),
-          hash:
-            result['hash' as keyof ExecutionPayload] ||
-            result['transactionHash' as keyof ExecutionPayload] ||
-            result,
-          from: fromAddress,
-          gasLimit: this.parseBigNumber(result['gasLimit' as keyof ExecutionPayload]),
+          ...transaction
         });
       }
   }
@@ -60,37 +55,4 @@ export class MixpanelTransactionObserver implements Observer {
     return '0x0000000000000000000000000000000000000000';
   }
 
-  private parseNumber(value?: string | number): number | undefined {
-    switch (typeof value) {
-      case 'string':
-        return parseInt(value);
-      default:
-        return value;
-    }
-  }
-
-  private parseBigNumber(value?: ExecutionPayload): string | undefined {
-    switch (typeof value) {
-      case 'string':
-      case 'undefined':
-        return value;
-      default:
-        return value['hex' as keyof ExecutionPayload] || value['_hex' as keyof ExecutionPayload];
-    }
-  }
-
-  private getChainId(execution: TargetExecution): number | undefined {
-    if (!execution.target) {
-      return undefined;
-    }
-    // Target extends from BaseProvider
-    if (execution.target._network) {
-      return execution.target._network['chainId' as keyof ExecutionPayload];
-    }
-    // Target is an ExternalProvider
-    if (execution.target.chainId) {
-      return parseInt(execution.target.chainId.toString());
-    }
-    return undefined;
-  }
 }
